@@ -7,6 +7,7 @@ class Game:
         # initialize the variables
         self.game_window = pygame.display.set_mode((1280, 720))
         self.game_background = pygame.transform.scale(pygame.image.load('map.png'), (1280, 720))
+        self.projectile_count = 0
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -30,15 +31,26 @@ class Game:
         if pressed_key[pygame.K_d] and player.x - 10 < 1240:
             player.x += 10
 
-    def handle_shooting(self, pressed_key, bow_location):
+    def handle_shooting(self, pressed_key, player):
         """ this method will handle the player's shooting"""
         # TODO: add projectile later
-        if pressed_key[pygame.K_LEFT]:
-            pass
+        if pressed_key[pygame.K_LEFT] and player.x - 10 > 0:
+            print('debug shot left')
+            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+            self.projectile.x -= 10
+            self.projectile_count += 1
+        if pressed_key[pygame.K_UP] and player.y - 10 > 0:
+            player.y -= 10
+        if pressed_key[pygame.K_DOWN] and player.y + 10 < 700:
+            player.y += 10
+        if pressed_key[pygame.K_RIGHT] and player.x - 10 < 1240:
+            player.x += 10
 
 
     def draw_windows(self):
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
+        if self.projectile_count > 0:
+            pygame.draw.rect(self.game_window, (255, 0, 0), self.projectile)
         pygame.display.update()
 
     def first_sprite(self):
@@ -55,7 +67,7 @@ class Game:
 
             self.pressed_key = pygame.key.get_pressed()
             self.handle_movement(pressed_key=self.pressed_key, player=self.player_setup)
-            # self.handle_shooting(pressed_key=self.pressed_key, bow_location=self.bow_)
+            self.handle_shooting(pressed_key=self.pressed_key, player=self.player_setup)
             # TODO: finish handling the shooting
             self.window_setup()
 
