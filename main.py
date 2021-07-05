@@ -135,7 +135,7 @@ class Game:
                 pygame.draw.rect(self.game_window, (255, 0, 0), projectiles[1])
 
         for monsters in self.mob_list:
-            if monsters[0] == 0:
+            if monsters[0] <= 0:
                 print('debug: monster shouldve been destroyed')
                 self.mob_list.pop(self.mob_list.index(monsters))
             else:
