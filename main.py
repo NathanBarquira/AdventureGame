@@ -7,7 +7,7 @@ class Game:
         # initialize the variables
         self.game_window = pygame.display.set_mode((1280, 720))
         self.game_background = pygame.transform.scale(pygame.image.load('map.png'), (1280, 720))
-        self.projectile_count = 0
+        self.projectile_count = []
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -37,19 +37,57 @@ class Game:
         if pressed_key[pygame.K_LEFT] and player.x - 10 > 0:
             print('debug shot left')
             self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
-            self.projectile.x -= 10
-            self.projectile_count += 1
+            self.projectile_count.append(('W', self.projectile))
         if pressed_key[pygame.K_UP] and player.y - 10 > 0:
-            player.y -= 10
+            print('debug shot up')
+            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+            self.projectile_count.append(('N', self.projectile))
         if pressed_key[pygame.K_DOWN] and player.y + 10 < 700:
-            player.y += 10
+            print('debug shot down')
+            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+            self.projectile_count.append(('S', self.projectile))
         if pressed_key[pygame.K_RIGHT] and player.x - 10 < 1240:
-            player.x += 10
+            print('debug shot right')
+            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+            self.projectile_count.append(('E', self.projectile))
+
+    def handle_projectile_motion(self, direction=None):
+        """ handle projectile motion """
+        # if direction == 'NE':
+        for bullet in self.projectile_count:
+            if bullet[0] == 'W':
+                print('debug recognize left shot')
+                if bullet[1].x < 1280 and bullet[1].x > 0:
+                    print('debug bullet coordinate', bullet[1].x)
+                    bullet[1].x -= 15
+                else:
+                    self.projectile_count.pop(self.projectile_count.index(bullet))
+            elif bullet[0] == 'N':
+                print('debug recognize left shot')
+                if bullet[1].y < 720 and bullet[1].y > 0:
+                    print('debug bullet coordinate', bullet[1].y)
+                    bullet[1].y -= 15
+                else:
+                    self.projectile_count.pop(self.projectile_count.index(bullet))
+            elif bullet[0] == 'S':
+                print('debug recognize left shot')
+                if bullet[1].y < 720 and bullet[1].y > 0:
+                    print('debug bullet coordinate', bullet[1].y)
+                    bullet[1].y += 15
+                else:
+                    self.projectile_count.pop(self.projectile_count.index(bullet))
+            elif bullet[0] == 'E':
+                print('debug recognize left shot')
+                if bullet[1].x < 1280 and bullet[1].x > 0:
+                    print('debug bullet coordinate', bullet[1].x)
+                    bullet[1].x += 15
+                else:
+                    self.projectile_count.pop(self.projectile_count.index(bullet))
 
 
     def draw_windows(self):
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
-        if self.projectile_count > 0:
+        if len(self.projectile_count) > 0:
             pygame.draw.rect(self.game_window, (255, 0, 0), self.projectile)
         pygame.display.update()
 
@@ -68,7 +106,10 @@ class Game:
             self.pressed_key = pygame.key.get_pressed()
             self.handle_movement(pressed_key=self.pressed_key, player=self.player_setup)
             self.handle_shooting(pressed_key=self.pressed_key, player=self.player_setup)
+
             # TODO: finish handling the shooting
+            self.handle_projectile_motion()
+
             self.window_setup()
 
             self.draw_windows()
