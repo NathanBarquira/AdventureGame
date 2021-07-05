@@ -1,5 +1,8 @@
 import pygame
 import pygame_functions
+import threading
+import random
+import time
 
 class Game:
     def __init__(self):
@@ -7,7 +10,12 @@ class Game:
         # initialize the variables
         self.game_window = pygame.display.set_mode((1280, 720))
         self.game_background = pygame.transform.scale(pygame.image.load('map.png'), (1280, 720))
-        self.projectile_count = []
+        self.projectile_count = []  # list of all projectiles on screen
+        self.mob_list = []  # list of all the monsters on the screen
+        self.another_shot = True
+        self.box_spawn = True
+        self.projectile_velocity = 30
+        # self.random_box() debug to test random hit
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -33,54 +41,89 @@ class Game:
 
     def handle_shooting(self, pressed_key, player):
         """ this method will handle the player's shooting"""
-        # TODO: add projectile later
-        if pressed_key[pygame.K_LEFT] and player.x - 10 > 0:
-            print('debug shot left')
-            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
-            self.projectile_count.append(('W', self.projectile))
-        if pressed_key[pygame.K_UP] and player.y - 10 > 0:
-            print('debug shot up')
-            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
-            self.projectile_count.append(('N', self.projectile))
-        if pressed_key[pygame.K_DOWN] and player.y + 10 < 700:
-            print('debug shot down')
-            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
-            self.projectile_count.append(('S', self.projectile))
-        if pressed_key[pygame.K_RIGHT] and player.x - 10 < 1240:
-            print('debug shot right')
-            self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
-            self.projectile_count.append(('E', self.projectile))
+        # TODO: make this a timed shot
+        if self.another_shot:
+            print('amount of projectiles on map:', len(self.projectile_count))
+            if pressed_key[pygame.K_LEFT] and player.x - 10 > 0:
+                print('debug shot left')
+                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile_count.append(('W', self.projectile))
+                self.another_shot = False
+                threading.Thread(target=self.timed_shot).start()
+            if pressed_key[pygame.K_UP] and player.y - 10 > 0:
+                print('debug shot up')
+                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile_count.append(('N', self.projectile))
+                self.another_shot = False
+                threading.Thread(target=self.timed_shot).start()
+            if pressed_key[pygame.K_DOWN] and player.y + 10 < 700:
+                print('debug shot down')
+                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile_count.append(('S', self.projectile))
+                self.another_shot = False
+                threading.Thread(target=self.timed_shot).start()
+            if pressed_key[pygame.K_RIGHT] and player.x - 10 < 1240:
+                print('debug shot right')
+                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile_count.append(('E', self.projectile))
+                self.another_shot = False
+                threading.Thread(target=self.timed_shot).start()
+
+    def timed_shot(self):
+        """ creates a time delay between shots """
+        # TODO: find a good time delay
+        time.sleep(1)
+        self.another_shot = True
 
     def handle_projectile_motion(self, direction=None):
         """ handle projectile motion """
-        # if direction == 'NE':
         for bullet in self.projectile_count:
             if bullet[0] == 'W':
                 print('debug recognize left shot')
                 if bullet[1].x < 1280 and bullet[1].x > 0:
                     print('debug bullet coordinate', bullet[1].x)
-                    bullet[1].x -= 15
+                    bullet[1].x -= self.projectile_velocity
+                    for mobs in self.mob_list:
+                        if mobs[1].colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
+                            mobs[0] -= 1
+                            bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'N':
                 print('debug recognize left shot')
                 if bullet[1].y < 720 and bullet[1].y > 0:
                     print('debug bullet coordinate', bullet[1].y)
-                    bullet[1].y -= 15
+                    bullet[1].y -= self.projectile_velocity
+                    for mobs in self.mob_list:
+                        if mobs[1].colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
+                            mobs[0] -= 1
+                            bullet[1].y -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'S':
                 print('debug recognize left shot')
                 if bullet[1].y < 720 and bullet[1].y > 0:
                     print('debug bullet coordinate', bullet[1].y)
-                    bullet[1].y += 15
+                    bullet[1].y += self.projectile_velocity
+                    for mobs in self.mob_list:
+                        if mobs[1].colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
+                            mobs[0] -= 1
+                            bullet[1].y -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'E':
                 print('debug recognize left shot')
                 if bullet[1].x < 1280 and bullet[1].x > 0:
                     print('debug bullet coordinate', bullet[1].x)
-                    bullet[1].x += 15
+                    bullet[1].x += self.projectile_velocity
+                    for mobs in self.mob_list:
+                        if mobs[1].colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
+                            mobs[0] -= 1
+                            bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
 
@@ -88,12 +131,34 @@ class Game:
     def draw_windows(self):
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
         if len(self.projectile_count) > 0:
-            pygame.draw.rect(self.game_window, (255, 0, 0), self.projectile)
+            for projectiles in self.projectile_count:
+                pygame.draw.rect(self.game_window, (255, 0, 0), projectiles[1])
+
+        for monsters in self.mob_list:
+            if monsters[0] == 0:
+                print('debug: monster shouldve been destroyed')
+                self.mob_list.pop(self.mob_list.index(monsters))
+            else:
+                pygame.draw.rect(self.game_window, (255, 0, 0), monsters[1])
         pygame.display.update()
 
     def first_sprite(self):
         """ test sprite for gif animation for shooting"""
         test_sprite = pygame_functions.makeSprite('arrow_shoot_gif.gif', 3)
+
+    """ these will be the monster AI's """
+    def random_box(self):
+        """ spawns a random breakable box """
+        self.box_spawn = False
+        for mobs in self.mob_list:
+            if mobs[2] == 'box':
+                self.box_spawn = True
+                break
+        if not self.box_spawn:
+            self.box = pygame.Rect(random.randint(0, 1100), random.randint(0, 720), 80, 80)
+            self.mob_list.append([3, self.box, 'box'])
+
+
 
     def game_loop(self):
         self.clock = pygame.time.Clock()
@@ -109,6 +174,9 @@ class Game:
 
             # TODO: finish handling the shooting
             self.handle_projectile_motion()
+
+            # handle mob spawns
+            self.random_box()
 
             self.window_setup()
 
