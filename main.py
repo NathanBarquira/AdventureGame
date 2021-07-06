@@ -149,6 +149,7 @@ class Game:
     """ these will be the monster AI's """
     def random_box(self):
         """ spawns a random breakable box """
+        # TODO: fix having multiple boxes or just one
         self.box_spawn = False
         for mobs in self.mob_list:
             if mobs[2] == 'box':
@@ -158,6 +159,29 @@ class Game:
             self.box = pygame.Rect(random.randint(0, 1100), random.randint(0, 720), 80, 80)
             self.mob_list.append([3, self.box, 'box'])
 
+    def random_enemy(self):
+        """ spawns a random moving enemy """
+        self.random_enemy_spawn = False
+        for mobs in self.mob_list:
+            if mobs[2] == 'rand_enemy':
+                self.random_enemy_spawn = True
+                if mobs[1].x > 0 and mobs[1].x < 1280 and mobs[1].y < 720 and mobs[1].y > 0:
+                    # TODO: make movement more fluid
+                    rand_walk_x = random.randint(-30, 30)
+                    rand_walk_y = random.randint(-30, 30)
+                    mobs[1].x += rand_walk_x
+                    mobs[1].y += rand_walk_y
+                else:
+                    self.mob_list.pop(self.mob_list.index(mobs))
+                break
+        if not self.random_enemy_spawn:
+            random_x = random.randint(0, 1000)
+            random_y = random.randint(0, 720)
+            random_width = random.randint(30, 60)
+            random_height = random.randint(30, 60)
+            random_health = random.randint(0, 5)
+            self.rand_enemy = pygame.Rect(random_x, random_y, random_width, random_height)
+            self.mob_list.append([random_health, self.rand_enemy, 'rand_enemy'])
 
 
     def game_loop(self):
@@ -176,13 +200,12 @@ class Game:
             self.handle_projectile_motion()
 
             # handle mob spawns
-            self.random_box()
+            # self.random_box()
+            self.random_enemy()
 
             self.window_setup()
 
             self.draw_windows()
-
-
 
 
 if __name__ == '__main__':
