@@ -14,6 +14,7 @@ class Game:
         self.mob_list = []  # list of all the monsters on the screen
         self.another_shot = True
         self.box_spawn = True
+        self.random_move_monster = True  # for handling random movement on monster
         self.projectile_velocity = 30
         # self.random_box() debug to test random hit
 
@@ -160,19 +161,31 @@ class Game:
             self.mob_list.append([3, self.box, 'box'])
 
     def random_enemy(self):
-        """ spawns a random moving enemy """
+        """ spawns a random moving enemy
+        currently despawns after it exits border """
         self.random_enemy_spawn = False
         for mobs in self.mob_list:
             if mobs[2] == 'rand_enemy':
                 self.random_enemy_spawn = True
                 if mobs[1].x > 0 and mobs[1].x < 1280 and mobs[1].y < 720 and mobs[1].y > 0:
                     # TODO: make movement more fluid
-                    rand_walk_x = random.randint(-30, 30)
-                    rand_walk_y = random.randint(-30, 30)
-                    mobs[1].x += rand_walk_x
-                    mobs[1].y += rand_walk_y
+
+                    if self.random_move_monster:
+                        self.random_move_monster = False
+                        threading.Thread(target=self.random_move_time).start()
+
+                        self.rand_walk_x = random.randint(-3, 3)
+                        self.rand_walk_y = random.randint(-3, 3)
+                        mobs[1].x += self.rand_walk_x
+                        mobs[1].y += self.rand_walk_y
+                    else:
+                        mobs[1].x += self.rand_walk_x
+                        mobs[1].y += self.rand_walk_y
                 else:
-                    self.mob_list.pop(self.mob_list.index(mobs))
+                    self.rand_walk_x = self.rand_walk_x * -1
+                    self.rand_walk_y = self.rand_walk_y * -1
+                    mobs[1].x += self.rand_walk_x
+                    mobs[1].y += self.rand_walk_y
                 break
         if not self.random_enemy_spawn:
             random_x = random.randint(0, 1000)
@@ -182,6 +195,10 @@ class Game:
             random_health = random.randint(0, 5)
             self.rand_enemy = pygame.Rect(random_x, random_y, random_width, random_height)
             self.mob_list.append([random_health, self.rand_enemy, 'rand_enemy'])
+
+    def random_move_time(self):
+        time.sleep(3)
+        self.random_move_monster = True
 
 
     def game_loop(self):
