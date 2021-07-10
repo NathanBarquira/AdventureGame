@@ -3,6 +3,7 @@ import pygame_functions
 import threading
 import random
 import time
+import tkinter as tk
 
 class Game:
     def __init__(self):
@@ -20,6 +21,7 @@ class Game:
 
         # initialize player variables
         self.player_health = 3
+        self.player_dead = False
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -99,7 +101,7 @@ class Game:
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'N':
-                print('debug recognize left shot')
+                print('debug recognize upper shot')
                 if bullet[1].y < 720 and bullet[1].y > 0:
                     print('debug bullet coordinate', bullet[1].y)
                     bullet[1].y -= self.projectile_velocity
@@ -111,7 +113,7 @@ class Game:
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'S':
-                print('debug recognize left shot')
+                print('debug recognize down shot')
                 if bullet[1].y < 720 and bullet[1].y > 0:
                     print('debug bullet coordinate', bullet[1].y)
                     bullet[1].y += self.projectile_velocity
@@ -123,7 +125,7 @@ class Game:
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'E':
-                print('debug recognize left shot')
+                print('debug recognize right shot')
                 if bullet[1].x < 1280 and bullet[1].x > 0:
                     print('debug bullet coordinate', bullet[1].x)
                     bullet[1].x += self.projectile_velocity
@@ -135,9 +137,27 @@ class Game:
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
 
+    def check_faint(self):
+        """ this method checks to see if you are dead or not by seeing if your health is less than or equal to zero"""
+        # TODO: maybe add some game stats?
+        if self.player_health <= 0:
+            print('DEBUG player is dead!')
+            dead_font = pygame.font.SysFont('comicsans', 40)
+            dead_text = dead_font.render('You died', True, (255, 255, 255))
+            self.player_dead = True
+            return dead_text
 
     def draw_windows(self):
         """ Draws windows for game stuff"""
+
+        # These commands will decide if the player is dead or not
+        dead_text = self.check_faint()
+        if self.player_dead:
+            self.game_window.blit(dead_text, (600, 360))
+            pygame.display.update()
+            # use tkinter for this part if possible
+            while self.player_dead:
+                pygame.time.delay(1)
 
         # These commands will handle the health
         player_health_font = pygame.font.SysFont('comicsans', 40)
@@ -212,11 +232,12 @@ class Game:
             self.mob_list.append([random_health, self.rand_enemy, 'rand_enemy'])
 
     def random_move_time(self):
+        """ method for random change direction of mobs"""
         time.sleep(2)
         self.random_move_monster = True
 
-
     def game_loop(self):
+        """ whee the actual game loop takes place"""
         self.clock = pygame.time.Clock()
         while True:
             self.clock.tick(30)
