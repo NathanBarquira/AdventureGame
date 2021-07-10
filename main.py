@@ -18,6 +18,9 @@ class Game:
         self.projectile_velocity = 30
         # self.random_box() debug to test random hit
 
+        # initialize player variables
+        self.player_health = 3
+
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
         self.player_setup = pygame.Rect(700, 300, 80, 80)  # this handles the coordinates for the actual player
@@ -39,6 +42,10 @@ class Game:
             player.y += 10
         if pressed_key[pygame.K_d] and player.x - 10 < 1240:
             player.x += 10
+        for mobs in self.mob_list:
+            if player.colliderect(mobs[1]):
+                print('DEBUG: player has been hit!!!!!!!!!!!!!!!!!')
+                self.player_health -= 1
 
     def handle_shooting(self, pressed_key, player):
         """ this method will handle the player's shooting"""
@@ -130,6 +137,14 @@ class Game:
 
 
     def draw_windows(self):
+        """ Draws windows for game stuff"""
+
+        # These commands will handle the health
+        player_health_font = pygame.font.SysFont('comicsans', 40)
+        player_health_text = player_health_font.render('Player Health: ' + str(self.player_health), True, (255, 255, 255))  # last one corresponds to white
+
+        self.game_window.blit(player_health_text, (10, 10))
+
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
         if len(self.projectile_count) > 0:
             for projectiles in self.projectile_count:
