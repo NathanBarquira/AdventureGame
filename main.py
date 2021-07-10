@@ -23,6 +23,7 @@ class Game:
         # initialize player variables
         self.player_health = 3
         self.player_dead = False
+        self.invincible = False
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -47,8 +48,17 @@ class Game:
             player.x += 10
         for mobs in self.mob_list:
             if player.colliderect(mobs[1]):
-                print('DEBUG: player has been hit!!!!!!!!!!!!!!!!!')
-                self.player_health -= 1
+                if not self.invincible:
+                    print('DEBUG: player has been hit!!!!!!!!!!!!!!!!!')
+                    self.player_health -= 1
+                    self.invincible = True
+                    threading.Thread(target=self.invincibility_window).start()
+                    # TODO: add blinking to character or some indication that player is invincible
+
+    def invincibility_window(self):
+        """ handles invincibility after getting hit """
+        time.sleep(3)
+        self.invincible = False
 
     def handle_shooting(self, pressed_key, player):
         """ this method will handle the player's shooting"""
