@@ -27,7 +27,7 @@ class Game:
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
-        self.player_setup = pygame.Rect(700, 300, 80, 80)  # this handles the coordinates for the actual player
+        self.player_setup = pygame.Rect(700, 300, 30, 30)  # this handles the coordinates for the actual player
         self.bow_setup = pygame.Rect(700, 299, 50, 50)  # this handles the coordinates for the bow
         self.player_image = pygame.image.load('alex.png')
         self.player = pygame.transform.rotate(pygame.transform.scale(self.player_image, (30, 30)), 270)
@@ -46,6 +46,8 @@ class Game:
             player.y += 10
         if pressed_key[pygame.K_d] and player.x - 10 < 1240:
             player.x += 10
+
+    def handle_player_collisions(self, player):
         for mobs in self.mob_list:
             if player.colliderect(mobs[1]):
                 if not self.invincible:
@@ -54,6 +56,7 @@ class Game:
                     self.invincible = True
                     threading.Thread(target=self.invincibility_window).start()
                     # TODO: add blinking to character or some indication that player is invincible
+
 
     def invincibility_window(self):
         """ handles invincibility after getting hit """
@@ -238,9 +241,8 @@ class Game:
         print('debug: person chose no')
         self.master.destroy()
 
-
-
     """ these will be the monster AI's """
+
     def random_box(self):
         """ spawns a random breakable box """
         # TODO: fix having multiple boxes or just one
@@ -317,6 +319,8 @@ class Game:
             self.window_setup()
 
             self.draw_windows()
+
+            self.handle_player_collisions(self.player_setup)
 
 
 
