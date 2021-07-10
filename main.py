@@ -9,6 +9,7 @@ class Game:
     def __init__(self):
 
         # initialize the variables
+        self.game_run = True
         self.game_window = pygame.display.set_mode((1280, 720))
         self.game_background = pygame.transform.scale(pygame.image.load('map.png'), (1280, 720))
         self.projectile_count = []  # list of all projectiles on screen
@@ -156,8 +157,15 @@ class Game:
             self.game_window.blit(dead_text, (600, 360))
             pygame.display.update()
             # use tkinter for this part if possible
-            while self.player_dead:
-                pygame.time.delay(1)
+            self.respawn_window()
+            # while self.player_dead:
+            #     print('DEBUG: in player dead loop')
+            #     pygame.time.delay(1)
+            if self.player_dead:
+                self.game_run = False
+                return pygame.quit()
+            elif not self.player_dead:
+                print('debug should have respawned')
 
         # These commands will handle the health
         player_health_font = pygame.font.SysFont('comicsans', 40)
@@ -181,6 +189,46 @@ class Game:
     def first_sprite(self):
         """ test sprite for gif animation for shooting"""
         test_sprite = pygame_functions.makeSprite('arrow_shoot_gif.gif', 3)
+
+    """ handles all tkinter stuff"""
+
+    def board_setup(self):
+        """ defines the startup variables for the GUI """
+        self.master = tk.Tk()
+        self.master.title("Nathan's game")
+        self.master.geometry('+{}+{}'.format(700, 300))
+        self.master.resizable(0, 0)
+
+    def runUI(self):
+        """ starts game loop """
+        self.master.mainloop()
+
+    def respawn_window(self):
+        """ makes the window for respawning when you die """
+        self.board_setup()
+        respawn_label = tk.Label(self.master, text='Do you want to play again?')
+        yes_button = tk.Button(self.master, command=self.respawn_yes, text='Yes')
+        no_button = tk.Button(self.master, command=self.respawn_no, text='No')
+        respawn_label.grid(columnspan=2, row=0)
+        yes_button.grid(row=1, column=0)
+        no_button.grid(row=1, column=1)
+        self.runUI()
+
+    def respawn_yes(self):
+        """ if person chooses yes in respawn window """
+        # TODO: finish resetting game
+        print('debug: person chose yes')
+        self.player_dead = False
+        self.player_health = 3
+        self.master.destroy()
+        self.mob_list.clear()
+
+    def respawn_no(self):
+        """ if person chooses no in respawn window """
+        print('debug: person chose no')
+        self.master.destroy()
+
+
 
     """ these will be the monster AI's """
     def random_box(self):
@@ -237,9 +285,9 @@ class Game:
         self.random_move_monster = True
 
     def game_loop(self):
-        """ whee the actual game loop takes place"""
+        """ where the actual game loop takes place"""
         self.clock = pygame.time.Clock()
-        while True:
+        while self.game_run:
             self.clock.tick(30)
             for event in pygame.event.get():
                 pass
@@ -259,6 +307,7 @@ class Game:
             self.window_setup()
 
             self.draw_windows()
+
 
 
 if __name__ == '__main__':
