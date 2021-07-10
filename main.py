@@ -174,8 +174,8 @@ class Game:
                         self.random_move_monster = False
                         threading.Thread(target=self.random_move_time).start()
 
-                        self.rand_walk_x = random.randint(-3, 3)
-                        self.rand_walk_y = random.randint(-3, 3)
+                        self.rand_walk_x = random.choice([-5, 0, 5])  # this accounts for diagonal and straight movements
+                        self.rand_walk_y = random.choice([-5, 0, 5])
                         mobs[1].x += self.rand_walk_x
                         mobs[1].y += self.rand_walk_y
                     else:
@@ -197,7 +197,7 @@ class Game:
             self.mob_list.append([random_health, self.rand_enemy, 'rand_enemy'])
 
     def random_move_time(self):
-        time.sleep(3)
+        time.sleep(2)
         self.random_move_monster = True
 
 
