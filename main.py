@@ -29,8 +29,6 @@ class Game:
         self.player_dim = (255, 255, 0)
         self.player_setup = pygame.Rect(700, 300, 30, 30)  # this handles the coordinates for the actual player
         self.bow_setup = pygame.Rect(700, 299, 50, 50)  # this handles the coordinates for the bow
-        self.player_image = pygame.image.load('alex.png')
-        self.player = pygame.transform.rotate(pygame.transform.scale(self.player_image, (30, 30)), 270)
         self.game_loop()
 
     def window_setup(self):
@@ -65,7 +63,6 @@ class Game:
 
     def handle_shooting(self, pressed_key, player):
         """ this method will handle the player's shooting"""
-        # TODO: make this a timed shot
         if self.another_shot:
             print('amount of projectiles on map:', len(self.projectile_count))
             if pressed_key[pygame.K_LEFT] and player.x - 10 > 0:
@@ -184,9 +181,17 @@ class Game:
         player_health_font = pygame.font.SysFont('comicsans', 40)
         player_health_text = player_health_font.render('Player Health: ' + str(self.player_health), True, (255, 255, 255))  # last one corresponds to white
 
+        # drawing user health
         self.game_window.blit(player_health_text, (10, 10))
 
+        # drawing player
+        if self.invincible:
+            player_image = pygame.image.load('hurt.png')
+        else:
+            player_image = pygame.image.load('alex.png')
+        self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 270)
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
+
         if len(self.projectile_count) > 0:
             for projectiles in self.projectile_count:
                 pygame.draw.rect(self.game_window, (255, 0, 0), projectiles[1])
@@ -233,6 +238,7 @@ class Game:
         print('debug: person chose yes')
         self.player_dead = False
         self.player_health = 3
+        self.invincible = False
         self.master.destroy()
         self.mob_list.clear()
 
