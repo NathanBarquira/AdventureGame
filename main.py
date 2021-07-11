@@ -18,7 +18,10 @@ class Game:
         self.box_spawn = True
         self.random_move_monster = True  # for handling random movement on monster
         self.projectile_velocity = 30
-        # self.random_box() debug to test random hit
+
+        # loading pictures
+        self.normal_picture = pygame.image.load('alex.png')
+        self.hurt_picture = pygame.image.load('hurt.png')
 
         # initialize player variables
         self.player_health = 3
@@ -53,7 +56,7 @@ class Game:
                     self.player_health -= 1
                     self.invincible = True
                     threading.Thread(target=self.invincibility_window).start()
-                    # TODO: add blinking to character or some indication that player is invincible
+                    # TODO: make blinking not laggy
 
 
     def invincibility_window(self):
@@ -185,10 +188,13 @@ class Game:
         self.game_window.blit(player_health_text, (10, 10))
 
         # drawing player
+
+
         if self.invincible:
-            player_image = pygame.image.load('hurt.png')
+            player_image = self.hurt_picture
         else:
-            player_image = pygame.image.load('alex.png')
+            player_image = self.normal_picture
+
         self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 270)
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
 
