@@ -385,10 +385,14 @@ class Game:
             self.handle_player_collisions(self.player_setup)
 
 
+""" classes of mobs """
+
+
 class RandomEnemy:
     def __init__(self):
+        """ initialize mob variables """
         self.random_x = random.randint(0, 1000)
-        self.random_y = random.randint(0, 720)
+        self.random_y = random.randint(0, 650)
         self.random_width = random.randint(30, 60)
         self.random_height = random.randint(30, 60)
         self.random_health = random.randint(1, 5)
@@ -421,25 +425,25 @@ class RandomEnemy:
         """ updates ID of mob """
         self.random_enemy_count += ID
 
-    def rand_walk_x(self, amount):
+    def walk_x(self, amount):
         """ walk in x direction """
         self.random_x += amount
 
-    def rand_walk_y(self, amount):
+    def walk_y(self, amount):
         """ walk in y direction """
         self.random_y += amount
 
     def change_direction(self):
         """ Changes direction for random walk """
-        # TODO: try to make load time faster if possible
         if self.pygame_AI.x > 0 and self.pygame_AI.x < 1240 and self.pygame_AI.y < 650 and self.pygame_AI.y > 0:
+            print('DEBUG:', self.can_move)
             if self.can_move:
-                threading.Thread(target=self.random_move_time()).start()
+                threading.Thread(target=self.random_move_time).start()
                 self.rand_walk_x = random.choice([-5, 0, 5])  # this accounts for diagonal and straight movements
                 self.rand_walk_y = random.choice([-5, 0, 5])
-                self.can_move = False
                 self.pygame_AI.x += self.rand_walk_x
                 self.pygame_AI.y += self.rand_walk_y
+                self.can_move = False
             else:
                 self.pygame_AI.x += self.rand_walk_x
                 self.pygame_AI.y += self.rand_walk_y
@@ -451,6 +455,7 @@ class RandomEnemy:
 
     def random_move_time(self):
         """ method for random change direction of mobs"""
+        print('debug in random move time')
         time.sleep(2)
         self.can_move = True
 
