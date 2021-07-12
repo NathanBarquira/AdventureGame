@@ -4,6 +4,7 @@ import threading
 import random
 import time
 import tkinter as tk
+import MobClasses
 
 # TODO: maybe make bullets a class
 
@@ -170,6 +171,11 @@ class Game:
             self.player_dead = True
             return dead_text
 
+    def reset_all(self):
+        """ should reset all rooms and stuff """
+        print('DEBUG: should have reset all')
+        self.test_room_spawn = False
+
     def draw_windows(self):
         """ Draws windows for game stuff"""
 
@@ -178,7 +184,6 @@ class Game:
         if self.player_dead:
             self.game_window.blit(dead_text, (600, 360))
             pygame.display.update()
-            # use tkinter for this part if possible
             self.respawn_window()
             # while self.player_dead:
             #     print('DEBUG: in player dead loop')
@@ -188,6 +193,7 @@ class Game:
                 return pygame.quit()
             elif not self.player_dead:
                 print('debug should have respawned')
+                self.reset_all()
 
         # These commands will handle the health
         player_health_font = pygame.font.SysFont('comicsans', 40)
@@ -196,27 +202,30 @@ class Game:
         # drawing user health
         self.game_window.blit(player_health_text, (10, 10))
 
-        # drawing player
-
-
+        # drawing player invincibility
         if self.invincible:
             player_image = self.hurt_picture
         else:
             player_image = self.normal_picture
 
+        # drawing player
         self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 270)
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
 
+        # drawing projectiles
         if len(self.projectile_count) > 0:
             for projectiles in self.projectile_count:
                 pygame.draw.rect(self.game_window, (255, 0, 0), projectiles[1])
 
+        # destroying monster if it has zero health
         for monsters in self.mob_list:
             if monsters.health() <= 0:
                 print('debug: monster shouldve been destroyed')
                 self.mob_list.pop(self.mob_list.index(monsters))
             else:
                 pygame.draw.rect(self.game_window, (255, 0, 0), monsters.AI())
+
+        # the only display update that should be in the loop
         pygame.display.update()
 
     def first_sprite(self):
@@ -341,15 +350,13 @@ class Game:
             if mobs.name() == 'rand_enemy':
                 mobs.change_direction()
 
-
-        # if not self.random_enemy_spawn:
     def spawn_random_enemy(self):
         """ spawns random enemy """
         for mobs in self.mob_list:
             if mobs.name() == 'rand_enemy':
                 self.random_enemy_count += 1
                 break
-        random_enemy = RandomEnemy()
+        random_enemy = MobClasses.RandomEnemy()
         random_enemy.update_ID(self.random_enemy_count)
         self.mob_list.append(random_enemy)
 
@@ -364,8 +371,8 @@ class Game:
         while self.game_run:
             self.clock.tick(30)
             for event in pygame.event.get():
+                # TODO: finish event handling
                 pass
-
 
             self.pressed_key = pygame.key.get_pressed()
             self.handle_movement(pressed_key=self.pressed_key, player=self.player_setup)
@@ -388,76 +395,7 @@ class Game:
 """ classes of mobs """
 
 
-class RandomEnemy:
-    def __init__(self):
-        """ initialize mob variables """
-        self.random_x = random.randint(0, 1000)
-        self.random_y = random.randint(0, 650)
-        self.random_width = random.randint(30, 60)
-        self.random_height = random.randint(30, 60)
-        self.random_health = random.randint(1, 5)
-        self.pygame_AI = pygame.Rect(self.random_x, self.random_y, self.random_width, self.random_height)
-        self.mob_name = 'rand_enemy'
-        self.random_enemy_count = 0
-        self.can_move = True
 
-    def health(self):
-        """ the mob's health """
-        return self.random_health
-
-    def AI(self):
-        """ pygame rectangle object of AI variables """
-        return self.pygame_AI
-
-    def name(self):
-        """ name of mob """
-        return self.mob_name
-
-    def ID(self):
-        """ id of how many of this mob are in the level """
-        return self.random_enemy_count
-
-    def hit(self, amount):
-        """ lose health by this amount"""
-        self.random_health -= amount
-
-    def update_ID(self, ID):
-        """ updates ID of mob """
-        self.random_enemy_count += ID
-
-    def walk_x(self, amount):
-        """ walk in x direction """
-        self.random_x += amount
-
-    def walk_y(self, amount):
-        """ walk in y direction """
-        self.random_y += amount
-
-    def change_direction(self):
-        """ Changes direction for random walk """
-        if self.pygame_AI.x > 0 and self.pygame_AI.x < 1240 and self.pygame_AI.y < 650 and self.pygame_AI.y > 0:
-            print('DEBUG:', self.can_move)
-            if self.can_move:
-                threading.Thread(target=self.random_move_time).start()
-                self.rand_walk_x = random.choice([-5, 0, 5])  # this accounts for diagonal and straight movements
-                self.rand_walk_y = random.choice([-5, 0, 5])
-                self.pygame_AI.x += self.rand_walk_x
-                self.pygame_AI.y += self.rand_walk_y
-                self.can_move = False
-            else:
-                self.pygame_AI.x += self.rand_walk_x
-                self.pygame_AI.y += self.rand_walk_y
-        else:
-            self.rand_walk_x = self.rand_walk_x * -1
-            self.rand_walk_y = self.rand_walk_y * -1
-            self.pygame_AI.x += self.rand_walk_x
-            self.pygame_AI.y += self.rand_walk_y
-
-    def random_move_time(self):
-        """ method for random change direction of mobs"""
-        print('debug in random move time')
-        time.sleep(2)
-        self.can_move = True
 
 
 if __name__ == '__main__':
