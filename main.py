@@ -5,6 +5,9 @@ import random
 import time
 import tkinter as tk
 
+# TODO: maybe make bullets a class
+
+
 class Game:
     def __init__(self):
 
@@ -16,17 +19,23 @@ class Game:
         self.mob_list = []  # list of all the monsters on the screen
         self.another_shot = True
         self.box_spawn = True
-        self.random_move_monster = True  # for handling random movement on monster
         self.projectile_velocity = 30
 
         # loading pictures
         self.normal_picture = pygame.image.load('alex.png')
         self.hurt_picture = pygame.image.load('hurt.png')
 
+        # initialize room variables
+        self.test_room_spawn = False
+
         # initialize player variables
         self.player_health = 3
         self.player_dead = False
         self.invincible = False
+
+        # initialize monster variables
+        self.random_enemy_count = 1
+        self.random_move_monster = True  # for handling random movement on monster
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -50,7 +59,7 @@ class Game:
 
     def handle_player_collisions(self, player):
         for mobs in self.mob_list:
-            if player.colliderect(mobs[1]):
+            if player.colliderect(mobs.AI()):
                 if not self.invincible:
                     print('DEBUG: player has been hit!!!!!!!!!!!!!!!!!')
                     self.player_health -= 1
@@ -108,9 +117,9 @@ class Game:
                     print('debug bullet coordinate', bullet[1].x)
                     bullet[1].x -= self.projectile_velocity
                     for mobs in self.mob_list:
-                        if mobs[1].colliderect(bullet[1]):
-                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
-                            mobs[0] -= 1
+                        if mobs.AI().colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
+                            mobs.hit(1)
                             bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
@@ -120,9 +129,9 @@ class Game:
                     print('debug bullet coordinate', bullet[1].y)
                     bullet[1].y -= self.projectile_velocity
                     for mobs in self.mob_list:
-                        if mobs[1].colliderect(bullet[1]):
-                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
-                            mobs[0] -= 1
+                        if mobs.AI().colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
+                            mobs.hit(1)
                             bullet[1].y -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
@@ -132,9 +141,9 @@ class Game:
                     print('debug bullet coordinate', bullet[1].y)
                     bullet[1].y += self.projectile_velocity
                     for mobs in self.mob_list:
-                        if mobs[1].colliderect(bullet[1]):
-                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
-                            mobs[0] -= 1
+                        if mobs.AI().colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
+                            mobs.hit(1)
                             bullet[1].y -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
@@ -144,9 +153,9 @@ class Game:
                     print('debug bullet coordinate', bullet[1].x)
                     bullet[1].x += self.projectile_velocity
                     for mobs in self.mob_list:
-                        if mobs[1].colliderect(bullet[1]):
-                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs[0])
-                            mobs[0] -= 1
+                        if mobs.AI().colliderect(bullet[1]):
+                            print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
+                            mobs.hit(1)
                             bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
@@ -203,11 +212,11 @@ class Game:
                 pygame.draw.rect(self.game_window, (255, 0, 0), projectiles[1])
 
         for monsters in self.mob_list:
-            if monsters[0] <= 0:
+            if monsters.health() <= 0:
                 print('debug: monster shouldve been destroyed')
                 self.mob_list.pop(self.mob_list.index(monsters))
             else:
-                pygame.draw.rect(self.game_window, (255, 0, 0), monsters[1])
+                pygame.draw.rect(self.game_window, (255, 0, 0), monsters.AI())
         pygame.display.update()
 
     def first_sprite(self):
@@ -253,6 +262,27 @@ class Game:
         print('debug: person chose no')
         self.master.destroy()
 
+    """ These will handle all the rooms """
+    def check_room_empty(self):
+        """ This will check if the room is empty """
+        # TODO: find a way to create a mob list for every room
+        if len(self.mob_list) == 0:
+            return True
+
+    def test_room(self):
+        """ This room will spawn a random amount of random monsters """
+        if not self.test_room_spawn:
+            self.spawn_random_enemy()
+            self.spawn_random_enemy()
+            self.spawn_random_enemy()
+            self.test_room_spawn = True
+
+        room_check = self.check_room_empty()
+        if room_check:
+            print('DEBUG: cleared all enemies')
+
+        self.random_enemy_move()
+
     """ these will be the monster AI's """
 
     def random_box(self):
@@ -267,21 +297,21 @@ class Game:
             self.box = pygame.Rect(random.randint(0, 1100), random.randint(0, 720), 80, 80)
             self.mob_list.append([3, self.box, 'box'])
 
-    def random_enemy(self):
+    def random_enemy_infinite(self):
         """ spawns a random moving enemy
         currently despawns after it exits border """
         self.random_enemy_spawn = False
         for mobs in self.mob_list:
-            if mobs[2] == 'rand_enemy':
+            if mobs.name() == 'rand_enemy':
                 self.random_enemy_spawn = True
                 if mobs[1].x > 0 and mobs[1].x < 1280 and mobs[1].y < 720 and mobs[1].y > 0:
-                    # TODO: make movement more fluid
 
                     if self.random_move_monster:
                         self.random_move_monster = False
                         threading.Thread(target=self.random_move_time).start()
 
-                        self.rand_walk_x = random.choice([-5, 0, 5])  # this accounts for diagonal and straight movements
+                        self.rand_walk_x = random.choice(
+                            [-5, 0, 5])  # this accounts for diagonal and straight movements
                         self.rand_walk_y = random.choice([-5, 0, 5])
                         mobs[1].x += self.rand_walk_x
                         mobs[1].y += self.rand_walk_y
@@ -293,7 +323,7 @@ class Game:
                     self.rand_walk_y = self.rand_walk_y * -1
                     mobs[1].x += self.rand_walk_x
                     mobs[1].y += self.rand_walk_y
-                break
+
         if not self.random_enemy_spawn:
             random_x = random.randint(0, 1000)
             random_y = random.randint(0, 720)
@@ -302,6 +332,26 @@ class Game:
             random_health = random.randint(0, 5)
             self.rand_enemy = pygame.Rect(random_x, random_y, random_width, random_height)
             self.mob_list.append([random_health, self.rand_enemy, 'rand_enemy'])
+
+    def random_enemy_move(self):
+        """ handles movement of random enemy """
+        for mobs in self.mob_list:
+            print('debug: mob list', self.mob_list)
+            print(mobs.name(), mobs.ID())
+            if mobs.name() == 'rand_enemy':
+                mobs.change_direction()
+
+
+        # if not self.random_enemy_spawn:
+    def spawn_random_enemy(self):
+        """ spawns random enemy """
+        for mobs in self.mob_list:
+            if mobs.name() == 'rand_enemy':
+                self.random_enemy_count += 1
+                break
+        random_enemy = RandomEnemy()
+        random_enemy.update_ID(self.random_enemy_count)
+        self.mob_list.append(random_enemy)
 
     def random_move_time(self):
         """ method for random change direction of mobs"""
@@ -326,7 +376,7 @@ class Game:
 
             # handle mob spawns
             # self.random_box()
-            self.random_enemy()
+            self.test_room()
 
             self.window_setup()
 
@@ -334,6 +384,75 @@ class Game:
 
             self.handle_player_collisions(self.player_setup)
 
+
+class RandomEnemy:
+    def __init__(self):
+        self.random_x = random.randint(0, 1000)
+        self.random_y = random.randint(0, 720)
+        self.random_width = random.randint(30, 60)
+        self.random_height = random.randint(30, 60)
+        self.random_health = random.randint(1, 5)
+        self.pygame_AI = pygame.Rect(self.random_x, self.random_y, self.random_width, self.random_height)
+        self.mob_name = 'rand_enemy'
+        self.random_enemy_count = 0
+        self.can_move = True
+
+    def health(self):
+        """ the mob's health """
+        return self.random_health
+
+    def AI(self):
+        """ pygame rectangle object of AI variables """
+        return self.pygame_AI
+
+    def name(self):
+        """ name of mob """
+        return self.mob_name
+
+    def ID(self):
+        """ id of how many of this mob are in the level """
+        return self.random_enemy_count
+
+    def hit(self, amount):
+        """ lose health by this amount"""
+        self.random_health -= amount
+
+    def update_ID(self, ID):
+        """ updates ID of mob """
+        self.random_enemy_count += ID
+
+    def rand_walk_x(self, amount):
+        """ walk in x direction """
+        self.random_x += amount
+
+    def rand_walk_y(self, amount):
+        """ walk in y direction """
+        self.random_y += amount
+
+    def change_direction(self):
+        """ Changes direction for random walk """
+        # TODO: try to make load time faster if possible
+        if self.pygame_AI.x > 0 and self.pygame_AI.x < 1240 and self.pygame_AI.y < 650 and self.pygame_AI.y > 0:
+            if self.can_move:
+                threading.Thread(target=self.random_move_time()).start()
+                self.rand_walk_x = random.choice([-5, 0, 5])  # this accounts for diagonal and straight movements
+                self.rand_walk_y = random.choice([-5, 0, 5])
+                self.can_move = False
+                self.pygame_AI.x += self.rand_walk_x
+                self.pygame_AI.y += self.rand_walk_y
+            else:
+                self.pygame_AI.x += self.rand_walk_x
+                self.pygame_AI.y += self.rand_walk_y
+        else:
+            self.rand_walk_x = self.rand_walk_x * -1
+            self.rand_walk_y = self.rand_walk_y * -1
+            self.pygame_AI.x += self.rand_walk_x
+            self.pygame_AI.y += self.rand_walk_y
+
+    def random_move_time(self):
+        """ method for random change direction of mobs"""
+        time.sleep(2)
+        self.can_move = True
 
 
 if __name__ == '__main__':
