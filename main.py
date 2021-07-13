@@ -18,9 +18,12 @@ class Game:
         self.game_background = pygame.transform.scale(pygame.image.load('map.png'), (1280, 720))
         self.projectile_count = []  # list of all projectiles on screen
         self.mob_list = []  # list of all the monsters on the screen
+        self.door_list = []  # list of all doors in the room
         self.another_shot = True
         self.box_spawn = True
         self.projectile_velocity = 30
+        self.game_height = 720
+        self.game_width = 1280
 
         # loading pictures
         self.normal_picture = pygame.image.load('alex.png')
@@ -28,6 +31,7 @@ class Game:
 
         # initialize room variables
         self.test_room_spawn = False
+        self.door_closed = True
 
         # initialize player variables
         self.player_health = 3
@@ -66,7 +70,7 @@ class Game:
                     self.player_health -= 1
                     self.invincible = True
                     threading.Thread(target=self.invincibility_window).start()
-                    # TODO: make blinking not laggy
+
 
 
     def invincibility_window(self):
@@ -76,29 +80,30 @@ class Game:
 
     def handle_shooting(self, pressed_key, player):
         """ this method will handle the player's shooting"""
+        # TODO: center the shot better!
         if self.another_shot:
             print('amount of projectiles on map:', len(self.projectile_count))
             if pressed_key[pygame.K_LEFT] and player.x - 10 > 0:
                 print('debug shot left')
-                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile = pygame.Rect(player.x + player.width // 2, player.y + player.height // 2 - 4, 10, 10)
                 self.projectile_count.append(('W', self.projectile))
                 self.another_shot = False
                 threading.Thread(target=self.timed_shot).start()
             if pressed_key[pygame.K_UP] and player.y - 10 > 0:
                 print('debug shot up')
-                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile = pygame.Rect(player.x + player.width // 2 - 4, player.y + player.height // 2, 10, 10)
                 self.projectile_count.append(('N', self.projectile))
                 self.another_shot = False
                 threading.Thread(target=self.timed_shot).start()
             if pressed_key[pygame.K_DOWN] and player.y + 10 < 700:
                 print('debug shot down')
-                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile = pygame.Rect(player.x + player.width // 2 - 4, player.y + player.height // 2, 10, 10)
                 self.projectile_count.append(('S', self.projectile))
                 self.another_shot = False
                 threading.Thread(target=self.timed_shot).start()
             if pressed_key[pygame.K_RIGHT] and player.x - 10 < 1240:
                 print('debug shot right')
-                self.projectile = pygame.Rect(player.x, player.y + player.height // 2, 10, 5)
+                self.projectile = pygame.Rect(player.x + player.width // 2, player.y + player.height // 2 - 4, 10, 10)
                 self.projectile_count.append(('E', self.projectile))
                 self.another_shot = False
                 threading.Thread(target=self.timed_shot).start()
@@ -202,6 +207,10 @@ class Game:
         # drawing user health
         self.game_window.blit(player_health_text, (10, 10))
 
+        # drawing doors
+        for doors in self.door_list:
+            pygame.draw.rect(self.game_window, (255, 0, 0), doors)
+
         # drawing player invincibility
         if self.invincible:
             player_image = self.hurt_picture
@@ -272,6 +281,35 @@ class Game:
         self.master.destroy()
 
     """ These will handle all the rooms """
+    def open_doors(self):
+        """ this will open doors, usually wanna use if room is cleared """
+        # TODO: def work on this method
+        pass
+
+    def set_door(self):
+        """ test method, sets a specific door down """
+        set_door = pygame.Rect(self.game_width // 2, 0, 30, 30)
+        self.door_list.append(set_door)
+        self.door_closed = False
+        return set_door
+
+    def handle_doors(self, pressed_key):
+        """ handles going through doors """
+        for doors in self.door_list:
+            if self.player_setup.colliderect(doors):
+                if pressed_key[pygame.K_w]:
+                    print('DEBUG: went through door')
+                    self.clear_doors()
+                    self.player_setup.y = 700
+                    self.test_room_spawn = False
+                    self.test_room()
+                    self.door_closed = True
+
+    def clear_doors(self):
+        """ clears all doors in the map"""
+        # TODO: make doors correspond to certain map!
+        self.door_list.clear()
+
     def check_room_empty(self):
         """ This will check if the room is empty """
         # TODO: find a way to create a mob list for every room
@@ -280,23 +318,29 @@ class Game:
 
     def test_room(self):
         """ This room will spawn a random amount of random monsters """
+        # TODO: maybe make a list of rooms with boolean of open door
         if not self.test_room_spawn:
             self.spawn_random_enemy()
             self.spawn_random_enemy()
             self.spawn_random_enemy()
             self.test_room_spawn = True
 
+        # checks if room is empty
         room_check = self.check_room_empty()
         if room_check:
             print('DEBUG: cleared all enemies')
-
+            if self.door_closed:
+                self.set_door()
+            else:
+                print('DEBUG: shouldve set door')
         self.random_enemy_move()
+
+
 
     """ these will be the monster AI's """
 
     def random_box(self):
         """ spawns a random breakable box """
-        # TODO: fix having multiple boxes or just one
         self.box_spawn = False
         for mobs in self.mob_list:
             if mobs[2] == 'box':
@@ -380,6 +424,7 @@ class Game:
 
             # TODO: finish handling the shooting
             self.handle_projectile_motion()
+            self.handle_doors(pressed_key = self.pressed_key)
 
             # handle mob spawns
             # self.random_box()
@@ -390,12 +435,6 @@ class Game:
             self.draw_windows()
 
             self.handle_player_collisions(self.player_setup)
-
-
-""" classes of mobs """
-
-
-
 
 
 if __name__ == '__main__':
