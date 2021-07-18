@@ -93,7 +93,6 @@ class Game:
 
     def handle_shooting(self, pressed_key, player):
         """ this method will handle the player's shooting"""
-        # TODO: center the shot better!
         if self.another_shot:
             print('amount of projectiles on map:', len(self.projectile_count))
             if pressed_key[pygame.K_LEFT] and player.x - 10 > 0:
@@ -364,12 +363,13 @@ class Game:
             self.terrain_list.clear()
             print('debug should be terrain list:', self.terrain_list)
 
+            # spawns random amount of enemies and rocks
             random_amount = random.randint(1, 4)
-            random_rock_amount = random.randint(1, 3)
-            for _ in range(random_amount):
-                self.spawn_random_enemy()
+            random_rock_amount = random.randint(5, 10)
             for _ in range(random_rock_amount):
                 self.spawn_rock()
+            for _ in range(random_amount):
+                self.spawn_random_enemy()
             self.random_room_spawn = True
 
         # checks if room is empty
@@ -387,6 +387,13 @@ class Game:
         """ This will spawn a rock that you cannot pass """
         random_rock = TerrainClasses.RandomTerrain()
         self.terrain_list.append(random_rock)
+
+    def handle_enemy_collisions(self):
+        """ This will handle when enemy runs into rock """
+        for mobs in self.mob_list:
+            for terrain in self.terrain_list:
+                if mobs.AI().colliderect(terrain.terrain()):
+                    mobs.hit_terrain()
 
     """ these will be the monster AI's """
 
@@ -453,6 +460,10 @@ class Game:
                 break
         random_enemy = MobClasses.RandomEnemy()
         random_enemy.update_ID(self.random_enemy_count)
+        for terrain in self.terrain_list:
+            if random_enemy.AI().colliderect(terrain.terrain()):
+                print('DEBUG: collided')
+                return self.spawn_random_enemy()
         self.mob_list.append(random_enemy)
 
     def random_move_time(self):
@@ -488,6 +499,7 @@ class Game:
 
             # handles all collisions
             self.handle_player_collisions(pressed_key=self.pressed_key, player=self.player_setup)
+            self.handle_enemy_collisions()
 
             # draws windows
             self.draw_windows()

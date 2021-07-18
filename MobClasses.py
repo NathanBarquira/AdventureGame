@@ -66,8 +66,7 @@ class RandomEnemy:
                 self.pygame_AI.x += self.rand_walk_x
                 self.pygame_AI.y += self.rand_walk_y
         else:
-            self.rand_walk_x = self.rand_walk_x * -1
-            self.rand_walk_y = self.rand_walk_y * -1
+            self.hit_terrain()
             self.pygame_AI.x += self.rand_walk_x
             self.pygame_AI.y += self.rand_walk_y
 
@@ -76,3 +75,12 @@ class RandomEnemy:
         print('debug in random move time')
         time.sleep(2)
         self.can_move = True
+
+    def hit_terrain(self):
+        """ method for when mob runs into terrain """
+        self.rand_walk_x = self.rand_walk_x * -1
+        self.rand_walk_y = self.rand_walk_y * -1
+
+    def kill(self):
+        """ when the mob kills itself """
+        self.random_health = 0
