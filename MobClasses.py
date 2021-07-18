@@ -9,6 +9,8 @@ import threading
 class RandomEnemy:
     def __init__(self):
         """ initialize mob variables """
+        self.rand_vel_x = 1
+        self.rand_vel_y = 1
         self.random_x = random.randint(0, 1000)
         self.random_y = random.randint(0, 650)
         self.random_width = random.randint(30, 60)
@@ -59,16 +61,18 @@ class RandomEnemy:
                 threading.Thread(target=self.random_move_time).start()
                 self.rand_walk_x = random.choice([-5, 0, 5])  # this accounts for diagonal and straight movements
                 self.rand_walk_y = random.choice([-5, 0, 5])
-                self.pygame_AI.x += self.rand_walk_x
-                self.pygame_AI.y += self.rand_walk_y
+                self.rand_vel_x = random.choice([1, 2, 3])
+                self.rand_vel_y = random.choice([1, 2, 3])
+                self.pygame_AI.x += self.rand_walk_x * self.rand_vel_x
+                self.pygame_AI.y += self.rand_walk_y * self.rand_vel_y
                 self.can_move = False
             else:
-                self.pygame_AI.x += self.rand_walk_x
-                self.pygame_AI.y += self.rand_walk_y
+                self.pygame_AI.x += self.rand_walk_x * self.rand_vel_x
+                self.pygame_AI.y += self.rand_walk_y * self.rand_vel_y
         else:
             self.hit_terrain()
-            self.pygame_AI.x += self.rand_walk_x
-            self.pygame_AI.y += self.rand_walk_y
+            self.pygame_AI.x += self.rand_walk_x * self.rand_vel_x
+            self.pygame_AI.y += self.rand_walk_y * self.rand_vel_y
 
     def random_move_time(self):
         """ method for random change direction of mobs"""
