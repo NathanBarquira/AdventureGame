@@ -139,6 +139,9 @@ class Game:
                             print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
                             mobs.hit(1)
                             bullet[1].x -= 3000
+                    for terrain in self.terrain_list:
+                        if terrain.terrain().colliderect(bullet[1]):
+                            bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'N':
@@ -151,6 +154,9 @@ class Game:
                             print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
                             mobs.hit(1)
                             bullet[1].y -= 3000
+                    for terrain in self.terrain_list:
+                        if terrain.terrain().colliderect(bullet[1]):
+                            bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'S':
@@ -163,6 +169,9 @@ class Game:
                             print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
                             mobs.hit(1)
                             bullet[1].y -= 3000
+                    for terrain in self.terrain_list:
+                        if terrain.terrain().colliderect(bullet[1]):
+                            bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
             elif bullet[0] == 'E':
@@ -174,6 +183,9 @@ class Game:
                         if mobs.AI().colliderect(bullet[1]):
                             print('debug hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!', mobs.health())
                             mobs.hit(1)
+                            bullet[1].x -= 3000
+                    for terrain in self.terrain_list:
+                        if terrain.terrain().colliderect(bullet[1]):
                             bullet[1].x -= 3000
                 else:
                     self.projectile_count.pop(self.projectile_count.index(bullet))
@@ -386,6 +398,11 @@ class Game:
     def spawn_rock(self):
         """ This will spawn a rock that you cannot pass """
         random_rock = TerrainClasses.RandomTerrain()
+
+        # this should fix the player from spawning into a rock and not being able to move
+        if random_rock.terrain().colliderect(self.player_setup):
+            return self.spawn_rock()
+
         self.terrain_list.append(random_rock)
 
     def handle_enemy_collisions(self):
