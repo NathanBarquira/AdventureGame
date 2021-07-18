@@ -5,6 +5,7 @@ import random
 import time
 import tkinter as tk
 import MobClasses
+import TerrainClasses
 
 # TODO: maybe make bullets a class
 
@@ -33,6 +34,7 @@ class Game:
         self.test_room_spawn = False
         self.door_closed = True
         self.random_room_spawn = False
+        self.terrain_list = []  # handles all the terrain in a room
 
         # initialize player variables
         self.player_health = 3
@@ -63,7 +65,7 @@ class Game:
         if pressed_key[pygame.K_d] and player.x - 10 < 1240:
             player.x += 10
 
-    def handle_player_collisions(self, player):
+    def handle_player_collisions(self, pressed_key, player):
         for mobs in self.mob_list:
             if player.colliderect(mobs.AI()):
                 if not self.invincible:
@@ -71,6 +73,18 @@ class Game:
                     self.player_health -= 1
                     self.invincible = True
                     threading.Thread(target=self.invincibility_window).start()
+
+        for terrain in self.terrain_list:
+            if player.colliderect(terrain.terrain()):
+                print('DEBUG: ran into a rock!')
+                if pressed_key[pygame.K_a] and player.x - 10 > 0:
+                    player.x += 10
+                if pressed_key[pygame.K_w] and player.y - 10 > 0:
+                    player.y += 10
+                if pressed_key[pygame.K_s] and player.y + 10 < 700:
+                    player.y -= 10
+                if pressed_key[pygame.K_d] and player.x - 10 < 1240:
+                    player.x -= 10
     
     def invincibility_window(self):
         """ handles invincibility after getting hit """
@@ -220,6 +234,10 @@ class Game:
         self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 270)
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
 
+        # drawing terrain
+        for terrain in self.terrain_list:
+            pygame.draw.rect(self.game_window, (255, 200, 200), terrain.terrain())
+
         # drawing projectiles
         if len(self.projectile_count) > 0:
             for projectiles in self.projectile_count:
@@ -245,7 +263,7 @@ class Game:
     def board_setup(self):
         """ defines the startup variables for the GUI """
         self.master = tk.Tk()
-        self.master.title("Nathan's game")
+        self.master.title("Nathan's Game")
         self.master.geometry('+{}+{}'.format(700, 300))
         self.master.resizable(0, 0)
 
@@ -338,8 +356,11 @@ class Game:
         """ This room will have a random amount of enemies (TEST) """
         if not self.random_room_spawn:
             random_amount = random.randint(1, 4)
+            random_rock_amount = random.randint(1, 3)
             for _ in range(random_amount):
                 self.spawn_random_enemy()
+            for _ in range(random_rock_amount):
+                self.spawn_rock()
             self.random_room_spawn = True
 
         # checks if room is empty
@@ -351,6 +372,12 @@ class Game:
             else:
                 print('DEBUG: shouldve set door')
         self.random_enemy_move()
+
+    """ miscellaneous room stuff """
+    def spawn_rock(self):
+        """ This will spawn a rock that you cannot pass """
+        random_rock = TerrainClasses.RandomTerrain()
+        self.terrain_list.append(random_rock)
 
     """ these will be the monster AI's """
 
@@ -447,9 +474,14 @@ class Game:
 
             self.window_setup()
 
-            self.draw_windows()
+            # self.draw_windows()
+            # TODO: see if you should have draw windows before or after handle player collisions
 
-            self.handle_player_collisions(self.player_setup)
+            # handles all collisions
+            self.handle_player_collisions(pressed_key=self.pressed_key, player=self.player_setup)
+
+            # draws windows
+            self.draw_windows()
 
 
 if __name__ == '__main__':
