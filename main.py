@@ -32,6 +32,7 @@ class Game:
         # initialize room variables
         self.test_room_spawn = False
         self.door_closed = True
+        self.random_room_spawn = False
 
         # initialize player variables
         self.player_health = 3
@@ -70,9 +71,7 @@ class Game:
                     self.player_health -= 1
                     self.invincible = True
                     threading.Thread(target=self.invincibility_window).start()
-
-
-
+    
     def invincibility_window(self):
         """ handles invincibility after getting hit """
         time.sleep(3)
@@ -335,7 +334,23 @@ class Game:
                 print('DEBUG: shouldve set door')
         self.random_enemy_move()
 
+    def random_room(self):
+        """ This room will have a random amount of enemies (TEST) """
+        if not self.random_room_spawn:
+            random_amount = random.randint(1, 4)
+            for _ in range(random_amount):
+                self.spawn_random_enemy()
+            self.random_room_spawn = True
 
+        # checks if room is empty
+        room_check = self.check_room_empty()
+        if room_check:
+            print('DEBUG: cleared all enemies')
+            if self.door_closed:
+                self.set_door()
+            else:
+                print('DEBUG: shouldve set door')
+        self.random_enemy_move()
 
     """ these will be the monster AI's """
 
@@ -424,11 +439,11 @@ class Game:
 
             # TODO: finish handling the shooting
             self.handle_projectile_motion()
-            self.handle_doors(pressed_key = self.pressed_key)
+            self.handle_doors(pressed_key=self.pressed_key)
 
             # handle mob spawns
             # self.random_box()
-            self.test_room()
+            self.random_room()
 
             self.window_setup()
 
