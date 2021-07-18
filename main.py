@@ -124,7 +124,7 @@ class Game:
     def timed_shot(self):
         """ creates a time delay between shots """
         # TODO: find a good time delay
-        time.sleep(1)
+        time.sleep(0.1)
         self.another_shot = True
 
     def handle_projectile_motion(self, direction=None):
@@ -318,8 +318,10 @@ class Game:
                     print('DEBUG: went through door')
                     self.clear_doors()
                     self.player_setup.y = 700
+                    # TODO: make it so all rooms become false maybe
                     self.test_room_spawn = False
-                    self.test_room()
+                    self.random_room_spawn = False
+                    self.random_room()  # this one! changes
                     self.door_closed = True
 
     def clear_doors(self):
@@ -332,6 +334,10 @@ class Game:
         # TODO: find a way to create a mob list for every room
         if len(self.mob_list) == 0:
             return True
+
+    def clear_terrain(self):
+        """ this will clear all terrain in the room """
+        self.terrain_list.clear()
 
     def test_room(self):
         """ This room will spawn a random amount of random monsters """
@@ -355,6 +361,9 @@ class Game:
     def random_room(self):
         """ This room will have a random amount of enemies (TEST) """
         if not self.random_room_spawn:
+            self.terrain_list.clear()
+            print('debug should be terrain list:', self.terrain_list)
+
             random_amount = random.randint(1, 4)
             random_rock_amount = random.randint(1, 3)
             for _ in range(random_amount):

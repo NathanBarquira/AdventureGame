@@ -53,7 +53,7 @@ class RandomEnemy:
 
     def change_direction(self):
         """ Changes direction for random walk """
-        if self.pygame_AI.x > 0 and self.pygame_AI.x < 1240 and self.pygame_AI.y < 650 and self.pygame_AI.y > 0:
+        if self.pygame_AI.x > 0 and self.pygame_AI.x < 1200 and self.pygame_AI.y < 650 and self.pygame_AI.y > 0:
             print('DEBUG:', self.can_move)
             if self.can_move:
                 threading.Thread(target=self.random_move_time).start()
