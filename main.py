@@ -26,9 +26,22 @@ class Game:
         self.game_height = 720
         self.game_width = 1280
 
+        # initialize colors
+        self.shadow = (192, 192, 192)
+        self.white = (255, 255, 255)
+        self.light_green = (0, 255, 0)
+        self.green = (0, 200, 0)
+        self.blue = (0, 0, 128)
+        self.light_blue = (0, 0, 255)
+        self.red = (200, 0, 0)
+        self.light_red = (255, 100, 100)
+        self.purple = (102, 0, 102)
+        self.light_purple = (153, 0, 153)
+
         # loading pictures
         self.normal_picture = pygame.image.load('alex.png')
         self.hurt_picture = pygame.image.load('hurt.png')
+        self.rock_image = pygame.image.load('rock.png')
 
         # initialize room variables
         self.test_room_spawn = False
@@ -204,6 +217,7 @@ class Game:
         """ should reset all rooms and stuff """
         print('DEBUG: should have reset all')
         self.test_room_spawn = False
+        self.random_room_spawn = False
 
     def draw_windows(self):
         """ Draws windows for game stuff"""
@@ -233,7 +247,7 @@ class Game:
 
         # drawing doors
         for doors in self.door_list:
-            pygame.draw.rect(self.game_window, (255, 0, 0), doors)
+            pygame.draw.rect(self.game_window, self.light_green, doors)
 
         # drawing player invincibility
         if self.invincible:
@@ -247,12 +261,14 @@ class Game:
 
         # drawing terrain
         for terrain in self.terrain_list:
-            pygame.draw.rect(self.game_window, (255, 200, 200), terrain.terrain())
+            # pygame.draw.rect(self.game_window, self.white, terrain.terrain())
+            rock_rect = pygame.transform.rotate(pygame.transform.scale(self.rock_image, (terrain.width(), terrain.height())), 0)
+            self.game_window.blit(rock_rect, (terrain.x(), terrain.y()))
 
         # drawing projectiles
         if len(self.projectile_count) > 0:
             for projectiles in self.projectile_count:
-                pygame.draw.rect(self.game_window, (255, 0, 0), projectiles[1])
+                pygame.draw.rect(self.game_window, self.light_red, projectiles[1])
 
         # destroying monster if it has zero health
         for monsters in self.mob_list:
