@@ -39,9 +39,10 @@ class Game:
         self.light_purple = (153, 0, 153)
 
         # loading pictures
-        self.normal_picture = pygame.image.load('alex.png')
+        self.normal_picture = pygame.image.load('main.png')
         self.hurt_picture = pygame.image.load('hurt.png')
         self.rock_image = pygame.image.load('rock.png')
+        self.random_monster_image = pygame.image.load('random_monster.png')
 
         # initialize room variables
         self.test_room_spawn = False
@@ -256,12 +257,18 @@ class Game:
             player_image = self.normal_picture
 
         # drawing player
-        self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 270)
+        self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 0)
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
+
+        # drawing monsters
+        for mobs in self.mob_list:
+            mob_rect = pygame.transform.rotate(pygame.transform.scale(self.random_monster_image, (mobs.width(), mobs.height())), 0)
+            self.game_window.blit(mob_rect, (mobs.x(), mobs.y()))
 
         # drawing terrain
         for terrain in self.terrain_list:
             # pygame.draw.rect(self.game_window, self.white, terrain.terrain())
+
             rock_rect = pygame.transform.rotate(pygame.transform.scale(self.rock_image, (terrain.width(), terrain.height())), 0)
             self.game_window.blit(rock_rect, (terrain.x(), terrain.y()))
 

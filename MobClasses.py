@@ -88,3 +88,19 @@ class RandomEnemy:
     def kill(self):
         """ when the mob kills itself """
         self.random_health = 0
+
+    def x(self):
+        """ returns x """
+        return self.random_x
+
+    def y(self):
+        """ returns y """
+        return self.random_y
+
+    def width(self):
+        """ returns width """
+        return self.random_width
+
+    def height(self):
+        """ returns height """
+        return self.random_height
