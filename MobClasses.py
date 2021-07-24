@@ -63,16 +63,22 @@ class RandomEnemy:
                 self.rand_walk_y = random.choice([-5, 0, 5])
                 self.rand_vel_x = random.choice([1, 2, 3])
                 self.rand_vel_y = random.choice([1, 2, 3])
-                self.pygame_AI.x += self.rand_walk_x * self.rand_vel_x
-                self.pygame_AI.y += self.rand_walk_y * self.rand_vel_y
+                self.actual_walk_x = self.rand_walk_x * self.rand_vel_x
+                self.actual_walk_y = self.rand_walk_y * self.rand_vel_y
+                self.pygame_AI.x += self.actual_walk_x
+                self.pygame_AI.y += self.actual_walk_y
                 self.can_move = False
             else:
-                self.pygame_AI.x += self.rand_walk_x * self.rand_vel_x
-                self.pygame_AI.y += self.rand_walk_y * self.rand_vel_y
+                self.actual_walk_x = self.rand_walk_x * self.rand_vel_x
+                self.actual_walk_y = self.rand_walk_y * self.rand_vel_y
+                self.pygame_AI.x += self.actual_walk_x
+                self.pygame_AI.y += self.actual_walk_y
         else:
             self.hit_terrain()
-            self.pygame_AI.x += self.rand_walk_x * self.rand_vel_x
-            self.pygame_AI.y += self.rand_walk_y * self.rand_vel_y
+            self.actual_walk_x = self.rand_walk_x * self.rand_vel_x
+            self.actual_walk_y = self.rand_walk_y * self.rand_vel_y
+            self.pygame_AI.x += self.actual_walk_x
+            self.pygame_AI.y += self.actual_walk_y
 
     def random_move_time(self):
         """ method for random change direction of mobs"""
@@ -91,11 +97,11 @@ class RandomEnemy:
 
     def x(self):
         """ returns x """
-        return self.random_x
+        return self.actual_walk_x
 
     def y(self):
         """ returns y """
-        return self.random_y
+        return self.actual_walk_y
 
     def width(self):
         """ returns width """
@@ -104,3 +110,8 @@ class RandomEnemy:
     def height(self):
         """ returns height """
         return self.random_height
+
+
+if __name__ == '__main__':
+    test = RandomEnemy()
+    print(test.x())

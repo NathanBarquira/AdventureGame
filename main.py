@@ -260,10 +260,7 @@ class Game:
         self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 0)
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
 
-        # drawing monsters
-        for mobs in self.mob_list:
-            mob_rect = pygame.transform.rotate(pygame.transform.scale(self.random_monster_image, (mobs.width(), mobs.height())), 0)
-            self.game_window.blit(mob_rect, (mobs.x(), mobs.y()))
+
 
         # drawing terrain
         for terrain in self.terrain_list:
@@ -284,6 +281,12 @@ class Game:
                 self.mob_list.pop(self.mob_list.index(monsters))
             else:
                 pygame.draw.rect(self.game_window, (255, 0, 0), monsters.AI())
+
+        # drawing monsters
+        for mobs in self.mob_list:
+            mob_rect = pygame.transform.rotate(
+                pygame.transform.scale(self.random_monster_image, (mobs.width(), mobs.height())), 0)
+            self.game_window.blit(mob_rect, (mobs.AI().x, mobs.AI().y))
 
         # the only display update that should be in the loop
         pygame.display.update()
