@@ -43,12 +43,14 @@ class Game:
         self.hurt_picture = pygame.image.load('hurt.png')
         self.rock_image = pygame.image.load('rock.png')
         self.random_monster_image = pygame.image.load('random_monster.png')
+        self.bullet_image = pygame.image.load('bullet.png')
 
         # initialize room variables
         self.test_room_spawn = False
         self.door_closed = True
         self.random_room_spawn = False
         self.terrain_list = []  # handles all the terrain in a room
+        self.room_ID = 0
 
         # initialize player variables
         self.player_health = 3
@@ -260,8 +262,6 @@ class Game:
         self.player = pygame.transform.rotate(pygame.transform.scale(player_image, (30, 30)), 0)
         self.game_window.blit(self.player, (self.player_setup.x, self.player_setup.y))
 
-
-
         # drawing terrain
         for terrain in self.terrain_list:
             # pygame.draw.rect(self.game_window, self.white, terrain.terrain())
@@ -272,7 +272,20 @@ class Game:
         # drawing projectiles
         if len(self.projectile_count) > 0:
             for projectiles in self.projectile_count:
-                pygame.draw.rect(self.game_window, self.light_red, projectiles[1])
+                # pygame.draw.rect(self.game_window, self.light_red, projectiles[1])
+                if projectiles[0] == 'N':
+                    projectile_rect = pygame.transform.rotate(
+                        pygame.transform.scale(self.bullet_image, (projectiles[1].width, projectiles[1].height)), 270)
+                elif projectiles[0] == 'W':
+                    projectile_rect = pygame.transform.rotate(
+                        pygame.transform.scale(self.bullet_image, (projectiles[1].width, projectiles[1].height)), 360)
+                elif projectiles[0] == 'S':
+                    projectile_rect = pygame.transform.rotate(
+                        pygame.transform.scale(self.bullet_image, (projectiles[1].width, projectiles[1].height)), 90)
+                else:
+                    projectile_rect = pygame.transform.rotate(
+                        pygame.transform.scale(self.bullet_image, (projectiles[1].width, projectiles[1].height)), 180)
+                self.game_window.blit(projectile_rect, (projectiles[1].x, projectiles[1].y))
 
         # destroying monster if it has zero health
         for monsters in self.mob_list:
@@ -356,15 +369,19 @@ class Game:
                     self.clear_doors()
                     self.player_setup.y = 700
                     # TODO: make it so all rooms become false maybe
-                    self.test_room_spawn = False
-                    self.random_room_spawn = False
-                    self.random_room()  # this one! changes
+                    self.reset_rooms()
+                    self.random_room()  # this one! changes which room you want!
                     self.door_closed = True
 
     def clear_doors(self):
         """ clears all doors in the map"""
         # TODO: make doors correspond to certain map!
         self.door_list.clear()
+
+    def reset_rooms(self):
+        """ this will set all room spawns to false """
+        self.test_room_spawn = False
+        self.random_room_spawn = False
 
     def check_room_empty(self):
         """ This will check if the room is empty """
@@ -400,6 +417,9 @@ class Game:
         if not self.random_room_spawn:
             self.terrain_list.clear()
             print('debug should be terrain list:', self.terrain_list)
+
+            self.room_ID += 1
+            print('DEBUG: should be room ID', self.room_ID)
 
             # spawns random amount of enemies and rocks
             random_amount = random.randint(1, 4)
@@ -491,7 +511,7 @@ class Game:
         """ handles movement of random enemy """
         for mobs in self.mob_list:
             print('debug: mob list', self.mob_list)
-            print(mobs.name(), mobs.ID())
+            print('should be mob name and room ID:', mobs.name(), mobs.ID(), mobs.room_ID())
             if mobs.name() == 'rand_enemy':
                 mobs.change_direction()
 
@@ -503,6 +523,7 @@ class Game:
                 break
         random_enemy = MobClasses.RandomEnemy()
         random_enemy.update_ID(self.random_enemy_count)
+        random_enemy.update_room_ID(self.room_ID)
         for terrain in self.terrain_list:
             if random_enemy.AI().colliderect(terrain.terrain()):
                 print('DEBUG: collided')
@@ -532,13 +553,11 @@ class Game:
             self.handle_doors(pressed_key=self.pressed_key)
 
             # handle mob spawns
-            # self.random_box()
             self.random_room()
 
+            # sets up background for the room
+            # TODO: find a way to change backgrounds in the room
             self.window_setup()
-
-            # self.draw_windows()
-            # TODO: see if you should have draw windows before or after handle player collisions
 
             # handles all collisions
             self.handle_player_collisions(pressed_key=self.pressed_key, player=self.player_setup)
