@@ -42,7 +42,7 @@ class Game:
         # loading pictures
         self.normal_picture = pygame.image.load('main.png')
         self.hurt_picture = pygame.image.load('hurt.png')
-        self.rock_image = pygame.image.load('rock.jpg')
+        self.rock_image = pygame.image.load('new_rock.jpg')
         self.random_monster_image = pygame.image.load('random_monster.png')
         self.follow_monster_image = pygame.image.load('follow_monster.png')
         self.gsp_monster_image = pygame.image.load('gsp_monster.png')
