@@ -536,6 +536,7 @@ class Game:
         # this randomly chooses an enemy to spawn
         chosen_enemy_int = random.randint(0, self.mob_amount)
         random_enemy = self.mob_types[chosen_enemy_int]
+        # random_enemy = self.mob_types[0]
 
         random_enemy.update_ID(self.random_enemy_count)
         random_enemy.update_room_ID(self.room_ID)

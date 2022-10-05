@@ -118,17 +118,18 @@ class RandomEnemy:
 
 class FollowEnemy:
     """ This enemy chases the player"""
+
     def __init__(self):
         """ initialize mob variables """
-        self.rand_vel_x = 2
-        self.rand_vel_y = 2
+        self.rand_vel_x = 1
+        self.rand_vel_y = 1
         self.random_x = random.randint(0, 1000)
         self.random_y = random.randint(0, 650)
         self.random_width = random.randint(30, 60)
         self.random_height = random.randint(30, 60)
         self.random_health = random.randint(1, 5)
         self.pygame_AI = pygame.Rect(self.random_x, self.random_y, self.random_width, self.random_height)
-        self.mob_name = 'follow_enemy'
+        self.mob_name = 'rand_enemy'
         self.random_enemy_count = 0
         self.can_move = True
         self.mob_room_ID = 0
@@ -181,6 +182,8 @@ class FollowEnemy:
                 threading.Thread(target=self.random_move_time).start()
                 self.rand_walk_x = random.choice([-5, 0, 5])  # this accounts for diagonal and straight movements
                 self.rand_walk_y = random.choice([-5, 0, 5])
+                self.rand_vel_x = random.choice([1, 2, 3])
+                self.rand_vel_y = random.choice([1, 2, 3])
                 self.pygame_AI.x += self.rand_walk_x * self.rand_vel_x
                 self.pygame_AI.y += self.rand_walk_y * self.rand_vel_y
                 self.can_move = False
