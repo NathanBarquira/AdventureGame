@@ -20,6 +20,7 @@ class Game:
         self.projectile_count = []  # list of all projectiles on screen
         self.mob_list = []  # list of all the monsters on the screen
         self.door_list = []  # list of all doors in the room
+        self.mob_types = [MobClasses.RandomEnemy(), MobClasses.FollowEnemy()]
         self.another_shot = True
         self.box_spawn = True
         self.projectile_velocity = 30
@@ -43,6 +44,7 @@ class Game:
         self.hurt_picture = pygame.image.load('hurt.png')
         self.rock_image = pygame.image.load('rock.png')
         self.random_monster_image = pygame.image.load('random_monster.png')
+        self.follow_monster_image = pygame.image.load('follow_monster.png')
         self.bullet_image = pygame.image.load('bullet.png')
 
         # initialize room variables
@@ -60,6 +62,7 @@ class Game:
         # initialize monster variables
         self.random_enemy_count = 1
         self.random_move_monster = True  # for handling random movement on monster
+        self.mob_amount = len(self.mob_types) - 1 # for the random monsters, one less than the actual amount
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -297,9 +300,14 @@ class Game:
 
         # drawing monsters
         for mobs in self.mob_list:
-            mob_rect = pygame.transform.rotate(
-                pygame.transform.scale(self.random_monster_image, (mobs.width(), mobs.height())), 0)
-            self.game_window.blit(mob_rect, (mobs.AI().x, mobs.AI().y))
+            if mobs.name() == 'rand_enemy':
+                mob_rect = pygame.transform.rotate(
+                    pygame.transform.scale(self.random_monster_image, (mobs.width(), mobs.height())), 0)
+                self.game_window.blit(mob_rect, (mobs.AI().x, mobs.AI().y))
+            if mobs.name() == 'follow_enemy':
+                mob_rect = pygame.transform.rotate(
+                    pygame.transform.scale(self.follow_monster_image, (mobs.width(), mobs.height())), 0)
+                self.game_window.blit(mob_rect, (mobs.AI().x, mobs.AI().y))
 
         # the only display update that should be in the loop
         pygame.display.update()
@@ -512,16 +520,23 @@ class Game:
         for mobs in self.mob_list:
             print('debug: mob list', self.mob_list)
             print('should be mob name and room ID:', mobs.name(), mobs.ID(), mobs.room_ID())
-            if mobs.name() == 'rand_enemy':
-                mobs.change_direction()
+            # if mobs.name() == 'rand_enemy':
+            mobs.change_direction()
 
     def spawn_random_enemy(self):
-        """ spawns random enemy """
-        for mobs in self.mob_list:
-            if mobs.name() == 'rand_enemy':
-                self.random_enemy_count += 1
-                break
-        random_enemy = MobClasses.RandomEnemy()
+        """ spawns a random type of enemy """
+
+        # TBD what to use this for
+        # for mobs in self.mob_list:
+        #     if mobs.name() == 'rand_enemy':
+        #         self.random_enemy_count += 1
+        #         break
+        self.random_enemy_count += 1
+
+        # this randomly chooses an enemy to spawn
+        chosen_enemy_int = random.randint(0, self.mob_amount)
+        random_enemy = self.mob_types[chosen_enemy_int]
+
         random_enemy.update_ID(self.random_enemy_count)
         random_enemy.update_room_ID(self.room_ID)
         for terrain in self.terrain_list:
@@ -529,6 +544,7 @@ class Game:
                 print('DEBUG: collided')
                 return self.spawn_random_enemy()
         self.mob_list.append(random_enemy)
+
 
     def random_move_time(self):
         """ method for random change direction of mobs"""
