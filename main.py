@@ -20,7 +20,7 @@ class Game:
         self.projectile_count = []  # list of all projectiles on screen
         self.mob_list = []  # list of all the monsters on the screen
         self.door_list = []  # list of all doors in the room
-        self.mob_types = [MobClasses.RandomEnemy(), MobClasses.FollowEnemy()]
+        self.mob_types = ['random_enemy', 'follow_enemy', 'gsp_enemy']
         self.another_shot = True
         self.box_spawn = True
         self.projectile_velocity = 30
@@ -45,6 +45,7 @@ class Game:
         self.rock_image = pygame.image.load('rock.png')
         self.random_monster_image = pygame.image.load('random_monster.png')
         self.follow_monster_image = pygame.image.load('follow_monster.png')
+        self.gsp_monster_image = pygame.image.load('gsp_monster.png')
         self.bullet_image = pygame.image.load('bullet.png')
 
         # initialize room variables
@@ -62,7 +63,7 @@ class Game:
         # initialize monster variables
         self.random_enemy_count = 1
         self.random_move_monster = True  # for handling random movement on monster
-        self.mob_amount = len(self.mob_types) - 1 # for the random monsters, one less than the actual amount
+        self.mob_amount = len(self.mob_types) - 1  # for the random monsters, one less than the actual amount
 
         # initialize player dimensions
         self.player_dim = (255, 255, 0)
@@ -308,6 +309,10 @@ class Game:
                 mob_rect = pygame.transform.rotate(
                     pygame.transform.scale(self.follow_monster_image, (mobs.width(), mobs.height())), 0)
                 self.game_window.blit(mob_rect, (mobs.AI().x, mobs.AI().y))
+            if mobs.name() == 'gsp_enemy':
+                mob_rect = pygame.transform.rotate(
+                    pygame.transform.scale(self.gsp_monster_image, (mobs.width(), mobs.height())), 0)
+                self.game_window.blit(mob_rect, (mobs.AI().x, mobs.AI().y))
 
         # the only display update that should be in the loop
         pygame.display.update()
@@ -520,7 +525,6 @@ class Game:
         for mobs in self.mob_list:
             print('debug: mob list', self.mob_list)
             print('should be mob name and room ID:', mobs.name(), mobs.ID(), mobs.room_ID())
-            # if mobs.name() == 'rand_enemy':
             mobs.change_direction()
 
     def spawn_random_enemy(self):
@@ -535,7 +539,17 @@ class Game:
 
         # this randomly chooses an enemy to spawn
         chosen_enemy_int = random.randint(0, self.mob_amount)
-        random_enemy = self.mob_types[chosen_enemy_int]
+        chosen_enemy_name = self.mob_types[chosen_enemy_int]
+
+        if chosen_enemy_name == 'random_enemy':
+            random_enemy = MobClasses.RandomEnemy()
+        elif chosen_enemy_name == 'follow_enemy':
+            random_enemy = MobClasses.FollowEnemy(self.player_setup)
+        elif chosen_enemy_name == 'gsp_enemy':
+            random_enemy = MobClasses.OrthogonalRandom()
+        else:
+            random_enemy = MobClasses.RandomEnemy()
+
         # random_enemy = self.mob_types[0]
 
         random_enemy.update_ID(self.random_enemy_count)
