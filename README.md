@@ -5,6 +5,7 @@ First game made utilizing the pygames module in python
 Run the "main.py" pyfile! Everything is connected to that and all the other pyfiles are imported into it!
 
 ########################
+
 This was a summer project I had in 2021.
 
 Things to note:
