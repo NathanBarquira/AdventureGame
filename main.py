@@ -59,6 +59,7 @@ class Game:
         self.player_health = 3
         self.player_dead = False
         self.invincible = False
+        self.score = 0
 
         # initialize monster variables
         self.random_enemy_count = 1
@@ -216,7 +217,7 @@ class Game:
         if self.player_health <= 0:
             print('DEBUG player is dead!')
             dead_font = pygame.font.SysFont('comicsans', 40)
-            dead_text = dead_font.render('You died', True, (255, 255, 255))
+            dead_text = dead_font.render('You died. Your score: ' + str(self.score), True, (255, 255, 255))
             self.player_dead = True
             return dead_text
 
@@ -249,8 +250,15 @@ class Game:
         player_health_font = pygame.font.SysFont('comicsans', 40)
         player_health_text = player_health_font.render('Player Health: ' + str(self.player_health), True, (255, 255, 255))  # last one corresponds to white
 
+        # These commands handle the level
+        player_level_font = pygame.font.SysFont('comicsans', 30)
+        player_level_font = player_level_font.render('Score: ' + str(self.score), True, (255, 255, 255))
+
         # drawing user health
         self.game_window.blit(player_health_text, (10, 10))
+
+        # drawing user level
+        self.game_window.blit(player_level_font, (1000, 30))
 
         # drawing doors
         for doors in self.door_list:
@@ -351,6 +359,7 @@ class Game:
         print('debug: person chose yes')
         self.player_dead = False
         self.player_health = 3
+        self.score = 0
         self.invincible = False
         self.master.destroy()
         self.mob_list.clear()
@@ -379,6 +388,7 @@ class Game:
             if self.player_setup.colliderect(doors):
                 if pressed_key[pygame.K_w]:
                     print('DEBUG: went through door')
+                    self.score += 1
                     self.clear_doors()
                     self.player_setup.y = 700
                     # TODO: make it so all rooms become false maybe
